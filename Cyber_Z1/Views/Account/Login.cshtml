@@ -1,39 +1,27 @@
-@model Cyber_Z1.ViewModel.LoginViewModel
-
 @{
-    ViewData["Title"] = "Log in";
+    Layout = "_Layout";
+    ViewData["Title"] = "Logowanie";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header text-center text-black">
-                    <h3>Log into the app</h3>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Login" method="post">
-                        <div class="form-group mb-3">
-                            <label asp-for="Username" class="form-label"></label>
-                            <input asp-for="Username" class="form-control" placeholder="Enter your username"/>
-                            <span asp-validation-for="Username" class="text-danger"></span>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label asp-for="Password" class="form-label"></label>
-                            <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password"/>
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Log in</button>
-                    </form>
-                </div>
-                <div class="card-footer text-center">
-                    <small class="text-muted">Don't have an account? Contact the administrator.</small>
-                </div>
-            </div>
-        </div>
+<h2>Logowanie</h2>
+
+<form asp-action="Login" method="post">
+    <div class="form-group">
+        <label>Nazwa użytkownika</label>
+        <input type="text" name="username" class="form-control" required />
     </div>
-</div>
+    <div class="form-group">
+        <label>Hasło</label>
+        <input type="password" name="password" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Zaloguj</button>
+    </div>
+</form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<div>
+    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <p style="color:red">@error.ErrorMessage</p>
+    }
+</div>

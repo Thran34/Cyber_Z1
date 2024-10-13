@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -26,16 +28,25 @@
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
 
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("UserId") != null)
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="UserList">Manage Users</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
                         </li>
+                        
+                        var isAdmin = HttpContextAccessor.HttpContext.Session.GetString("IsAdmin");
+
+                        if (isAdmin == "True")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Manage Users</a>
+                            </li>
+                        }
+                        
                         <li class="nav-item">
                             <form id="logoutForm" asp-area="" asp-controller="Account" asp-action="Logout" method="post" style="display:none;"></form>
                             <a class="nav-link text-dark" href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();">Logout</a>
                         </li>
-
                     }
                     else
                     {
@@ -56,7 +67,7 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2024 - Cyber_Z1 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; @DateTime.Now.Year - Cyber_Z1 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

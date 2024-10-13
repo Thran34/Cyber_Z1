@@ -1,0 +1,51 @@
+@model Cyber_Z1.Models.User
+
+@{
+    ViewData["Title"] = "Dodaj Nowego Użytkownika";
+}
+
+<h2>Dodaj Nowego Użytkownika</h2>
+
+<form asp-action="CreateUser" method="post">
+    <div>
+        <label>Nazwa Użytkownika</label>
+        <input type="text" asp-for="Username" required />
+    </div>
+    <div>
+        <label>Pełna Nazwa</label>
+        <input type="text" asp-for="FullName" required />
+    </div>
+    <div>
+        <label>Rola</label>
+        <select asp-for="IsAdmin">
+            <option value="false">Użytkownik</option>
+            <option value="true">Administrator</option>
+        </select>
+    </div>
+    <div>
+        <label>Hasło</label>
+        <input type="password" asp-for="PasswordHash" required />
+    </div>
+    <div>
+        <label>Potwierdź Hasło</label>
+        <input type="password" id="ConfirmPassword" required />
+    </div>
+    <div>
+        <label>Data wygaśnięcia hasła</label>
+        <input type="date" asp-for="PasswordExpiryDate" />
+    </div>
+    <div>
+        <label>Data zablokowania konta</label> 
+        <input type="date" asp-for="BlockedDate" /> 
+    </div>
+    <div>
+        <button type="submit">Dodaj Użytkownika</button>
+    </div>
+</form>
+
+<div>
+    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <p style="color:red">@error.ErrorMessage</p>
+    }
+</div>

@@ -1,0 +1,14 @@
+@model Cyber_Z1.Models.User
+
+<td>
+    <a asp-action="EditUser" asp-route-id="@Model.UserId" class="btn btn-sm btn-warning">Edytuj</a>
+
+    <form asp-action="BlockUser" asp-route-id="@Model.UserId" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-sm btn-secondary">
+            @(Model.IsBlocked ? "Odblokuj" : "Zablokuj")
+        </button>
+    </form>
+
+    <a asp-action="DeleteUser" asp-route-id="@Model.UserId" class="btn btn-sm btn-danger">Usuń</a>
+</td>

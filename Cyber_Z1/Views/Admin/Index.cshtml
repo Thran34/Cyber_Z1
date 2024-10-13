@@ -1,0 +1,44 @@
+@model IEnumerable<Cyber_Z1.Models.User>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lista Użytkowników";
+}
+
+<h2>Lista Użytkowników</h2>
+
+<table class="table table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Nazwa Użytkownika</th>
+            <th>Pełna Nazwa</th>
+            <th>Rola</th>
+            <th>Status</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.FullName</td>
+                <td>@(user.IsAdmin ? "Administrator" : "Użytkownik")</td>
+                <td>@(user.IsBlocked ? "Zablokowany" : "Aktywny")</td>
+                <td>
+                    <a asp-action="EditUser" asp-route-id="@user.UserId" class="btn btn-sm btn-warning">Edytuj</a>
+                    
+                    <form asp-action="BlockUser" asp-route-id="@user.UserId" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            @(user.IsBlocked ? "Odblokuj" : "Zablokuj")
+                        </button>
+                    </form>
+                    
+                    <a asp-action="DeleteUser" asp-route-id="@user.UserId" class="btn btn-sm btn-danger">Usuń</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="CreateUser" class="btn btn-primary">Dodaj Nowego Użytkownika</a>

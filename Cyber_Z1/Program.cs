@@ -1,43 +1,42 @@
+using Cyber_Z1;
 using Cyber_Z1.Context;
-using Cyber_Z1.Models;
-using Microsoft.AspNetCore.Identity;
+using Cyber_Z1.Services.Abstract;
+using Cyber_Z1.Services.Concrete;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-
 var connectionString = builder.Configuration.GetConnectionString("conn_string_local");
+builder.Services.AddControllersWithViews();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<SecurityContext>(options =>
     options.UseSqlServer(connectionString));
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-    await SeedAdminAccount(userManager, roleManager);
+    var services = scope.ServiceProvider;
+    SeedData.Initialize(services);
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -46,35 +45,3 @@ app.MapControllerRoute(
     "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
-// Metoda SeedAdminAccount do utworzenia konta administratora
-static async Task SeedAdminAccount(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
-{
-    string adminRole = "Admin";
-    string adminUsername = "ADMIN";
-    string adminEmail = "admin@example.com";
-    string adminPassword = "Admin!123";
-    
-    if (!await roleManager.RoleExistsAsync(adminRole))
-    {
-        await roleManager.CreateAsync(new IdentityRole(adminRole));
-    }
-    
-    if (await userManager.FindByNameAsync(adminUsername) == null)
-    {
-        var adminUser = new ApplicationUser
-        {
-            UserName = adminUsername,
-            Email = adminEmail,
-            EmailConfirmed = true,
-            FirstName = "Admin",
-            LastName = "User"
-        };
-
-        var result = await userManager.CreateAsync(adminUser, adminPassword);
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, adminRole);
-        }
-    }
-}

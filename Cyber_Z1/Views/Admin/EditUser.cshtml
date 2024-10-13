@@ -1,36 +1,49 @@
-@model Cyber_Z1.ViewModel.EditUserViewModel
+@model Cyber_Z1.Models.User
 
 @{
-    ViewData["Title"] = "Edit User";
+    Layout = "_Layout";
+    ViewData["Title"] = "Edytuj Użytkownika";
 }
 
-<h2>Edit User</h2>
+<h2>Edytuj Użytkownika</h2>
 
 <form asp-action="EditUser" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div class="form-group mb-3">
-        <label asp-for="Username" class="form-label"></label>
-        <input asp-for="Username" class="form-control" />
-        <span asp-validation-for="Username" class="text-danger"></span>
+    @Html.AntiForgeryToken()
+    
+    <input type="hidden" asp-for="UserId" />
+
+    <div class="form-group">
+        <label asp-for="Username"></label>
+        <input asp-for="Username" class="form-control" readonly />
     </div>
-    <div class="form-group mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="FullName"></label>
+        <input asp-for="FullName" class="form-control" required />
     </div>
-    <div class="form-group mb-3">
-        <label asp-for="FirstName" class="form-label"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="IsAdmin">Rola</label>
+        <select asp-for="IsAdmin" class="form-control">
+            <option value="false">Użytkownik</option>
+            <option value="true">Administrator</option>
+        </select>
     </div>
-    <div class="form-group mb-3">
-        <label asp-for="LastName" class="form-label"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="PasswordRestrictionsEnabled">Ograniczenia Haseł</label>
+        <select asp-for="PasswordRestrictionsEnabled" class="form-control">
+            <option value="true">Włączone</option>
+            <option value="false">Wyłączone</option>
+        </select>
+        <input type="hidden" asp-for="PasswordHash" />
     </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Zapisz Zmiany</button>
+        <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+    </div>
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<div>
+    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <p style="color:red">@error.ErrorMessage</p>
+    }
+</div>
