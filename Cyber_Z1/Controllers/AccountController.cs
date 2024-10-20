@@ -8,11 +8,12 @@ public class AccountController : Controller
 {
     private readonly SecurityContext _context;
     private readonly IPasswordService _passwordService;
-
-    public AccountController(SecurityContext context, IPasswordService passwordService)
+    private ILogService _logService;
+    public AccountController(SecurityContext context, IPasswordService passwordService, ILogService logService)
     {
         _context = context;
         _passwordService = passwordService;
+        _logService = logService;
     }
 
     // GET: Account/Login
@@ -24,18 +25,32 @@ public class AccountController : Controller
     // POST: Account/Login
     [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
+    {   
+    var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+    if (user != null)
     {
-        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
-
-        if (user != null && _passwordService.VerifyPassword(password, user.PasswordHash))
+        if (user.IsBlocked)
         {
-            if (user.BlockedDate.HasValue && user.BlockedDate.Value <= DateTime.Now)
+            var remainingBlockTime = user.BlockedDate.Value - DateTime.Now;
+            if (remainingBlockTime > TimeSpan.Zero)
             {
-                user.IsBlocked = true;
-                await _context.SaveChangesAsync();
-                ModelState.AddModelError("", "Konto jest zablokowane.");
+                ModelState.AddModelError("", $"Konto jest zablokowane. Pozostały czas: {remainingBlockTime.Minutes} min {remainingBlockTime.Seconds} sek.");
                 return View();
             }
+            else
+            {
+                user.IsBlocked = false;
+                user.FailedLoginAttempts = 0;
+                user.BlockedDate = null; 
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        if (_passwordService.VerifyPassword(password, user.PasswordHash))
+        {
+            // Successful login
+            user.FailedLoginAttempts = 0;
+            await _context.SaveChangesAsync();
 
             if (user.PasswordExpiryDate.HasValue && user.PasswordExpiryDate.Value < DateTime.Now)
             {
@@ -48,19 +63,37 @@ public class AccountController : Controller
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("FullName", user.FullName);
             HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-
+            await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Logowanie uzytkownika", $"Uzytkownik '{HttpContext.Session.GetString("Username")}' zalogował się.");
             return RedirectToAction("Index", "Home");
         }
         else
         {
-            ModelState.AddModelError("", "Login lub Hasło niepoprawny");
+            user.FailedLoginAttempts++;
+            if (user.FailedLoginAttempts >= 3)
+            {
+                user.IsBlocked = true;
+                user.BlockedDate = DateTime.Now.AddMinutes(15); // Block for 15 minutes from now
+                ModelState.AddModelError("", "BLOKADA!!! Konto zostało zablokowane na 15 minut.");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Login lub Hasło niepoprawny.");
+            }
+
+            await _context.SaveChangesAsync();
             return View();
         }
     }
-    
+    else
+    {
+        ModelState.AddModelError("", "Login lub Hasło niepoprawny.");
+        return View();
+    }
+}
     // GET: Account/Logout
     public IActionResult Logout()
     {
+        _logService.LogActivity(HttpContext.Session.GetString("Username"), "Wylogowanie uzytkownika", $"Uzytkownik '{HttpContext.Session.GetString("Username")} wylogowal się.");
         HttpContext.Session.Clear();
         return RedirectToAction("Login", "Account");
     }
@@ -142,7 +175,7 @@ public class AccountController : Controller
         _context.PasswordHistories.Add(passwordHistory);
 
         await _context.SaveChangesAsync();
-
+        await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Zmiana hasła", $"Pomyslnie zmieniono haslo uzytkownika {HttpContext.Session.GetString("Username")}");
         return RedirectToAction("Index", "Home");
     }
 }

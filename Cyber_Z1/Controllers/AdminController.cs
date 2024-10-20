@@ -10,11 +10,12 @@ namespace Cyber_Z1.Controllers
     {
         private readonly SecurityContext _context;
         private readonly IPasswordService _passwordService;
-
-        public AdminController(SecurityContext context, IPasswordService passwordService)
+        private ILogService _logService;
+        public AdminController(SecurityContext context, IPasswordService passwordService, ILogService logService)
         {
             _context = context;
             _passwordService = passwordService;
+            _logService = logService;
         }
 
         // GET: Admin
@@ -61,7 +62,8 @@ namespace Cyber_Z1.Controllers
 
                 _context.Users.Add(model);
                 await _context.SaveChangesAsync();
-
+                await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Tworzenie konta uzytkownika", $"Uzytkownik '{model.Username}' został utworzony.");
+                
                 return RedirectToAction("Index");
             }
 
@@ -115,6 +117,8 @@ namespace Cyber_Z1.Controllers
                         return NotFound();
                     }
 
+                    var oldUsername = existingUser.Username;
+                    
                     existingUser.FullName = user.FullName;
                     existingUser.IsAdmin = user.IsAdmin;
                     existingUser.IsBlocked = user.IsBlocked;
@@ -124,6 +128,7 @@ namespace Cyber_Z1.Controllers
 
                     _context.Update(existingUser);
                     await _context.SaveChangesAsync();
+                    await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Edycja uzytkownika", $"Uzytkownik '{oldUsername}' został zaktualizowany.");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -161,7 +166,8 @@ namespace Cyber_Z1.Controllers
 
             _context.Update(user);
             await _context.SaveChangesAsync();
-
+            var action = user.IsBlocked ? "został zablokowany" : "został odblokowany";
+            await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Blokada uzytkownika", $"User '{user.Username}' {action}.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -205,6 +211,7 @@ namespace Cyber_Z1.Controllers
             }
 
             _context.Users.Remove(user);
+            await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Usuwanie uzytkownika", $"Usunięto uzytkownika {user.Username}");
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -217,6 +224,17 @@ namespace Cyber_Z1.Controllers
         private bool IsAdmin()
         {
             return HttpContext.Session.GetString("IsAdmin") == "True";
+        }
+
+        public async Task<IActionResult> MonitorUsers()
+        {
+            if (!IsAdmin())
+            {
+                return Unauthorized();
+            }
+
+            var logs = await _context.UserActivityLogs.ToListAsync();
+            return View(logs);
         }
     }
 }

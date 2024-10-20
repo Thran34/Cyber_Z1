@@ -1,0 +1,23 @@
+@model IEnumerable<Cyber_Z1.Models.UserActivityLog>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Nazwa Użytkownika</th>
+        <th>Data i Czas</th>
+        <th>Akcja</th>
+        <th>Opis</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var log in Model)
+    {
+        <tr>
+            <td>@log.Username</td>
+            <td>@log.Timestamp</td>
+            <td>@log.Action</td>
+            <td>@log.Description</td>
+        </tr>
+    }
+    </tbody>
+</table>

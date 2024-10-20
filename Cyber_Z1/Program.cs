@@ -18,6 +18,7 @@ builder.Services.AddDbContext<SecurityContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 var app = builder.Build();
 

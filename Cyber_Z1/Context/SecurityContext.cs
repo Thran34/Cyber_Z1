@@ -11,7 +11,7 @@ namespace Cyber_Z1.Context
         }
 
         public DbSet<User> Users { get; set; }
-
+        public DbSet<UserActivityLog> UserActivityLogs { get; set; }
         public DbSet<PasswordHistory> PasswordHistories { get; set; }
     }
 }
