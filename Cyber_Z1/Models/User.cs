@@ -20,5 +20,6 @@ public class User
     public DateTime? PasswordExpiryDate { get; set; }
     public DateTime? BlockedDate { get; set; } 
     public int FailedLoginAttempts { get; set; }
+    public int MaxFailedLoginAttempts { get; set; }
     public virtual ICollection<PasswordHistory> PasswordHistories { get; set; } = new List<PasswordHistory>();
 }

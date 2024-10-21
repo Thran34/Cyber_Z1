@@ -38,6 +38,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
+app.UseMiddleware<InactivityBlockMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

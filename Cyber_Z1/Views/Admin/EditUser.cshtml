@@ -7,6 +7,13 @@
 
 <h2>Edytuj Użytkownika</h2>
 
+@if (TempData["GeneratedPassword"] != null)
+{
+    <div class="alert alert-success">
+        Wygenerowane jednorazowe hasło: <strong>@TempData["GeneratedPassword"]</strong>
+    </div>
+}
+
 <form asp-action="EditUser" method="post">
     @Html.AntiForgeryToken()
     
@@ -35,6 +42,27 @@
         </select>
         <input type="hidden" asp-for="PasswordHash" />
     </div>
+    <div>
+        <label>Wygeneruj jednorazowe hasło</label>
+        <input type="checkbox" id="generateOneTimePassword" name="generateOneTimePassword" value="true" />
+        <input type="hidden" name="generateOneTimePassword" value="false" />
+    </div>
+    <div>
+        <label>Hasło</label>
+        <input type="password" id="PasswordHash" asp-for="PasswordHash" required />
+    </div>
+    <div>
+        <label>Potwierdź Hasło</label>
+        <input type="password" id="ConfirmPassword" required />
+    </div>
+    <div>
+        <label>Data wygaśnięcia hasła</label>
+        <input type="date" id="PasswordExpiryDate" asp-for="PasswordExpiryDate" />
+    </div>
+    <div>
+        <label>Maksymalna liczba błędnych prób logowania</label>
+        <input type="number" asp-for="MaxFailedLoginAttempts" min="1" required />
+    </div>
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Zapisz Zmiany</button>
         <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
@@ -47,3 +75,32 @@
         <p style="color:red">@error.ErrorMessage</p>
     }
 </div>
+
+<script>
+    document.getElementById('generateOneTimePassword').addEventListener('change', function() {
+        if (this.checked) {
+            let password = generateOneTimePassword(8);
+
+            document.getElementById('PasswordHash').value = password;
+            document.getElementById('ConfirmPassword').value = password;
+
+            let today = new Date();
+            let formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('PasswordExpiryDate').value = formattedDate;
+        } else {
+            document.getElementById('PasswordHash').value = '';
+            document.getElementById('ConfirmPassword').value = '';
+            document.getElementById('PasswordExpiryDate').value = '';
+        }
+    });
+
+    function generateOneTimePassword(length) {
+        let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+            let randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+        }
+        return password;
+    }
+</script>

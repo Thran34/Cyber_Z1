@@ -48,7 +48,6 @@ public class AccountController : Controller
 
         if (_passwordService.VerifyPassword(password, user.PasswordHash))
         {
-            // Successful login
             user.FailedLoginAttempts = 0;
             await _context.SaveChangesAsync();
 
@@ -63,16 +62,18 @@ public class AccountController : Controller
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("FullName", user.FullName);
             HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-            await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Logowanie uzytkownika", $"Uzytkownik '{HttpContext.Session.GetString("Username")}' zalogował się.");
+            await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Logowanie uzytkownika",
+                $"Uzytkownik '{HttpContext.Session.GetString("Username")}' zalogował się.");
+            HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
             return RedirectToAction("Index", "Home");
         }
         else
         {
             user.FailedLoginAttempts++;
-            if (user.FailedLoginAttempts >= 3)
+            if (user.FailedLoginAttempts >= user.MaxFailedLoginAttempts)
             {
                 user.IsBlocked = true;
-                user.BlockedDate = DateTime.Now.AddMinutes(15); // Block for 15 minutes from now
+                user.BlockedDate = DateTime.Now.AddMinutes(15); 
                 ModelState.AddModelError("", "BLOKADA!!! Konto zostało zablokowane na 15 minut.");
             }
             else
@@ -116,7 +117,7 @@ public class AccountController : Controller
         {
             return NotFound();
         }
-
+        HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
         return View();
     }
 
@@ -175,7 +176,8 @@ public class AccountController : Controller
         _context.PasswordHistories.Add(passwordHistory);
 
         await _context.SaveChangesAsync();
-        await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Zmiana hasła", $"Pomyslnie zmieniono haslo uzytkownika {HttpContext.Session.GetString("Username")}");
+        await _logService.LogActivity(user.Username, "Zmiana hasła", $"Pomyslnie zmieniono haslo uzytkownika '{user.Username}'");
+        HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
         return RedirectToAction("Index", "Home");
     }
 }
