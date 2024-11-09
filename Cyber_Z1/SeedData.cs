@@ -30,7 +30,12 @@ public static class SeedData
                 PasswordExpiryDate = DateTime.Now.AddDays(30),
                 PasswordHash = passwordService.HashPassword("123")
             };
-
+            var startupQuestion = new AudioQuestion
+            {
+                AudioFilePath = "wwwroot/audio/Wskaz_Zwierze.mp3",
+                CorrectAnswer = "pies"
+            };
+            context.AudioQuestions.Add(startupQuestion);
             context.Users.Add(adminUser);
             context.SaveChanges();
         }

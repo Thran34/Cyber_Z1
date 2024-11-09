@@ -30,8 +30,83 @@
                 var users = await _context.Users.ToListAsync();
                 HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
                 return View(users);
-            }
+            } 
+            
+            [HttpGet]
+            public IActionResult SetAudioQuestion()
+            {
+                if (!IsAdmin())
+                {
+                    return Unauthorized();
+                }
 
+                var audioDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/audio");
+                var audioFiles = Directory.Exists(audioDirectory)
+                    ? Directory.GetFiles(audioDirectory).Select(f => Path.GetFileName(f)).ToList()
+                    : new List<string>();
+
+                ViewBag.AudioFiles = audioFiles;
+
+                HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
+                return View();
+            }   
+
+            // POST: Admin/SetAudioQuestion
+            [HttpPost]
+            public async Task<IActionResult> SetAudioQuestion(string selectedFile, IFormFile audioFile, string correctAnswer)
+            {
+                if (!IsAdmin())
+                {
+                    return Unauthorized();
+                }
+
+                string audioPath = null;
+
+                if (!string.IsNullOrEmpty(selectedFile))
+                {
+                    audioPath = "/audio/" + selectedFile; 
+                }
+                else if (audioFile != null && !string.IsNullOrEmpty(correctAnswer))
+                {
+                    var savePath = Path.Combine("wwwroot/audio", audioFile.FileName);
+                    audioPath = "/audio/" + audioFile.FileName; 
+
+                    using (var stream = new FileStream(savePath, FileMode.Create))
+                    {
+                        await audioFile.CopyToAsync(stream);
+                    }
+                }
+
+                if (audioPath != null && !string.IsNullOrEmpty(correctAnswer))
+                {
+                    var existingAudioConfig = await _context.AudioQuestions.FirstOrDefaultAsync();
+                    if (existingAudioConfig != null)
+                    {
+                        existingAudioConfig.AudioFilePath = audioPath;
+                        existingAudioConfig.CorrectAnswer = correctAnswer;
+                    }
+                    else
+                    {
+                        var newAudioQuestion = new AudioQuestion
+                        {
+                            AudioFilePath = audioPath, 
+                            CorrectAnswer = correctAnswer
+                        };
+                        _context.AudioQuestions.Add(newAudioQuestion);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Index");
+                }
+
+                var audioDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/audio");
+                ViewBag.AudioFiles = Directory.Exists(audioDirectory)
+                    ? Directory.GetFiles(audioDirectory).Select(f => Path.GetFileName(f)).ToList()
+                    : new List<string>();
+
+                return View();
+            }
+            
             // GET: Admin/CreateUser
             public IActionResult CreateUser()
             {

@@ -17,80 +17,64 @@ public class AccountController : Controller
     }
 
     // GET: Account/Login
-    public IActionResult Login()
+    public async Task<IActionResult> Login()
     {
+        var audioQuestion = await _context.AudioQuestions.FirstOrDefaultAsync();
+
+        if (audioQuestion != null)
+        {
+            ViewBag.AudioFilePath = audioQuestion.AudioFilePath.Replace("wwwroot/", "~/");
+        }
+        else
+        {
+            ViewBag.AudioFilePath = null; 
+        }
+
         return View();
     }
 
     // POST: Account/Login
     [HttpPost]
-    public async Task<IActionResult> Login(string username, string password)
-    {   
-    var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
-    if (user != null)
+    public async Task<IActionResult> Login(string username, string password, string audioAnswer)
     {
-        if (user.IsBlocked)
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+        var audioQuestion = await _context.AudioQuestions.FirstOrDefaultAsync();
+
+        if (user != null && audioQuestion != null)
         {
-            var remainingBlockTime = user.BlockedDate.Value - DateTime.Now;
-            if (remainingBlockTime > TimeSpan.Zero)
+            if (_passwordService.VerifyPassword(password, user.PasswordHash) &&
+                audioAnswer.Equals(audioQuestion.CorrectAnswer, StringComparison.OrdinalIgnoreCase))
             {
-                ModelState.AddModelError("", $"Konto jest zablokowane. Pozostały czas: {remainingBlockTime.Minutes} min {remainingBlockTime.Seconds} sek.");
-                return View();
+                user.FailedLoginAttempts = 0;
+                await _context.SaveChangesAsync();
+
+                HttpContext.Session.SetInt32("UserId", user.UserId);
+                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                await _logService.LogActivity(user.Username, "Login", $"User '{user.Username}' logged in.");
+
+                return RedirectToAction("Index", "Home");
             }
             else
             {
-                user.IsBlocked = false;
-                user.FailedLoginAttempts = 0;
-                user.BlockedDate = null; 
+                ModelState.AddModelError("", "Login, hasło, lub odpowiedź do pytania jest nieprawidłowa.");
+                user.FailedLoginAttempts++;
                 await _context.SaveChangesAsync();
+                if (user.FailedLoginAttempts >= 3) 
+                {
+                    var canaryTokenService = HttpContext.RequestServices.GetService<ICanaryTokenService>();
+                    await canaryTokenService.TriggerTokenAsync();
+                }
             }
-        }
-
-        if (_passwordService.VerifyPassword(password, user.PasswordHash))
-        {
-            user.FailedLoginAttempts = 0;
-            await _context.SaveChangesAsync();
-
-            if (user.PasswordExpiryDate.HasValue && user.PasswordExpiryDate.Value < DateTime.Now)
-            {
-                TempData["RequirePasswordChange"] = true;
-                HttpContext.Session.SetInt32("UserId", user.UserId);
-                return RedirectToAction("ChangePassword");
-            }
-
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("Username", user.Username);
-            HttpContext.Session.SetString("FullName", user.FullName);
-            HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-            await _logService.LogActivity(HttpContext.Session.GetString("Username"), "Logowanie uzytkownika",
-                $"Uzytkownik '{HttpContext.Session.GetString("Username")}' zalogował się.");
-            HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
-            return RedirectToAction("Index", "Home");
         }
         else
         {
-            user.FailedLoginAttempts++;
-            if (user.FailedLoginAttempts >= user.MaxFailedLoginAttempts)
-            {
-                user.IsBlocked = true;
-                user.BlockedDate = DateTime.Now.AddMinutes(15); 
-                ModelState.AddModelError("", "BLOKADA!!! Konto zostało zablokowane na 15 minut.");
-            }
-            else
-            {
-                ModelState.AddModelError("", "Login lub Hasło niepoprawny.");
-            }
-
-            await _context.SaveChangesAsync();
-            return View();
+            ModelState.AddModelError("", "Niepoprawny login lub haslo.");
         }
-    }
-    else
-    {
-        ModelState.AddModelError("", "Login lub Hasło niepoprawny.");
+
         return View();
     }
-}
+    
     // GET: Account/Logout
     public IActionResult Logout()
     {
@@ -123,8 +107,15 @@ public class AccountController : Controller
 
     // POST: Account/ChangePassword
     [HttpPost]
-    public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmPassword)
+    public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmPassword, string gRecaptchaResponse)
     {
+        var isValidCaptcha = await VerifyReCaptchaAsync(gRecaptchaResponse);
+        if (!isValidCaptcha)
+        {
+            ModelState.AddModelError("", "reCAPTCHA validation failed.");
+            return View();
+        }
+        
         int? userId = HttpContext.Session.GetInt32("UserId");
         if (userId == null)
         {
@@ -179,5 +170,16 @@ public class AccountController : Controller
         await _logService.LogActivity(user.Username, "Zmiana hasła", $"Pomyslnie zmieniono haslo uzytkownika '{user.Username}'");
         HttpContext.Session.Set("LastActivity", BitConverter.GetBytes(DateTime.Now.ToBinary()));
         return RedirectToAction("Index", "Home");
+    }
+
+    private async Task<bool> VerifyReCaptchaAsync(string token)
+    {
+        var secret = "6LcxVWoqAAAAAGSl0Piq9O_Bw_B759mfCbmohVMs";
+        using (var client = new HttpClient())
+        {
+            var response = await client.PostAsync($"https://www.google.com/recaptcha/api/siteverify?secret={secret}&response={token}", null);
+            var result = await response.Content.ReadAsStringAsync();
+            return result.Contains("\"success\": true");
+        }
     }
 }

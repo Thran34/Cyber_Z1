@@ -14,6 +14,24 @@
         <label>Hasło</label>
         <input type="password" name="password" class="form-control" required />
     </div>
+
+    @if (ViewBag.AudioFilePath != null)
+    {
+        <audio id="audioQuestion" controls>
+            <source src="@ViewBag.AudioFilePath" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    }
+    else
+    {
+        <p>No audio question available.</p>
+    }
+
+    <div class="form-group">
+        <label>Answer the question</label>
+        <input type="text" name="audioAnswer" class="form-control" required />
+    </div>
+
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Zaloguj</button>
     </div>

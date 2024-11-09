@@ -17,6 +17,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddDbContext<SecurityContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient<ICanaryTokenService, CanaryTokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ILogService, LogService>();
 
