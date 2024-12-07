@@ -1,6 +1,37 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+    ViewData["Title"] = "Polityka Prywatności";
+    // Losowe pouczenia dotyczące cyberbezpieczeństwa
+    var securityTips = new List<string>
+    {
+        "Nigdy nie używaj tego samego hasła na różnych stronach.",
+        "Używaj silnych haseł złożonych z liter, cyfr i znaków specjalnych.",
+        "Włącz uwierzytelnianie dwuskładnikowe (2FA) dla swoich kont.",
+        "Unikaj klikania w podejrzane linki w wiadomościach e-mail.",
+        "Regularnie aktualizuj swoje oprogramowanie, aby naprawić luki w zabezpieczeniach.",
+        "Nie udostępniaj swoich danych osobowych w mediach społecznościowych.",
+        "Upewnij się, że połączenie z witryną jest zabezpieczone (https://).",
+        "Stosuj menedżera haseł do bezpiecznego przechowywania danych logowania."
+    };
 
-<p>Use this page to detail your site's privacy policy.</p>
+    // Generowanie losowego pouczenia
+    var randomTip = securityTips[new Random().Next(securityTips.Count)];
+}
+
+<div class="full-screen matrix-theme">
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1 class="text-matrix">@ViewData["Title"]</h1>
+        </div>
+
+        <div class="card matrix-card">
+            <div class="card-body">
+                <p class="text-matrix-light">
+                    Na tej stronie znajdziesz informacje dotyczące polityki prywatności Twojej witryny.
+                </p>
+                <p class="text-matrix">
+                    <strong>Pouczenie dotyczące cyberbezpieczeństwa:</strong> @randomTip
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

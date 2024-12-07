@@ -2,7 +2,61 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5 matrix-theme">
+    <div class="text-center mb-4">
+        <h1 class="display-4 text-matrix">Cyberbezpieczeństwo</h1>
+        <p class="lead text-matrix-light">
+            Aplikacja do zarządzania bezpieczeństwem użytkowników i haseł.
+        </p>
+    </div>
+
+    <div class="card matrix-card mb-4">
+        <div class="card-header text-matrix">
+            <h3>Funkcje systemu bezpieczeństwa</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item matrix-list-item">
+                    <strong>Role użytkowników:</strong> Administrator oraz Zwykły Użytkownik.
+                </li>
+                <li class="list-group-item matrix-list-item">
+                    <strong>Bezpieczne logowanie:</strong> Identyfikator i hasło, z maskowaniem znaków („*”) podczas wpisywania.
+                </li>
+                <li class="list-group-item matrix-list-item">
+                    <strong>Zmiana hasła:</strong> Wymagana przy pierwszym logowaniu oraz dla wygaśniętych haseł.
+                </li>
+                <li class="list-group-item matrix-list-item">
+                    <strong>Algorytm hashujący:</strong> Haseł użytkowników nie przechowuje się w formie jawnej, lecz jako bezpieczne hashe.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card matrix-card mb-4">
+        <div class="card-header text-matrix">
+            <h3>Funkcje administratora</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item matrix-list-item">Zmiana hasła administratora (po poprawnym podaniu starego hasła).</li>
+                <li class="list-group-item matrix-list-item">Dodawanie i usuwanie użytkowników.</li>
+                <li class="list-group-item matrix-list-item">Przeglądanie i zarządzanie listą użytkowników.</li>
+                <li class="list-group-item matrix-list-item">Blokowanie kont użytkowników i ograniczeń haseł.</li>
+                <li class="list-group-item matrix-list-item">Włączanie/wyłączanie ograniczeń hasła wybranych przez użytkownika.</li>
+                <li class="list-group-item matrix-list-item">Ustawienie ważności haseł z wymuszeniem zmiany po upływie czasu.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card matrix-card">
+        <div class="card-header text-matrix">
+            <h3>Funkcje użytkownika</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item matrix-list-item">Zmiana hasła (po poprawnym podaniu starego hasła).</li>
+                <li class="list-group-item matrix-list-item">Zakończenie pracy z systemem.</li>
+            </ul>
+        </div>
+    </div>
 </div>

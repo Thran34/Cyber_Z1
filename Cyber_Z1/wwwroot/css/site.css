@@ -20,3 +20,148 @@ html {
 body {
     margin-bottom: 60px;
 }
+
+/* Motyw Matrix */
+.matrix-theme {
+    background-color: #000; /* Czarne t³o */
+    color: #0f0; /* Zielony neonowy tekst */
+    font-family: "Courier New", Courier, monospace; /* Stylizacja tekstu */
+}
+
+    .matrix-theme .container {
+        margin-bottom: 40px; /* Odstêp na dole */
+    }
+
+.text-matrix {
+    color: #0f0; /* Neonowy zielony */
+    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+}
+
+.text-matrix-light {
+    color: #8f8; /* Jaœniejszy neonowy zielony */
+}
+
+.matrix-card {
+    background-color: #1a1a1a; /* Ciemny szary dla kart */
+    border: 1px solid #0f0; /* Zielone obramowanie */
+    box-shadow: 0 0 10px #0f0; /* Neonowa poœwiata */
+}
+
+.matrix-list-item {
+    background-color: transparent; /* Przezroczyste t³o listy */
+    color: #0f0; /* Neonowy zielony tekst */
+    border-bottom: 1px solid #0f0; /* Zielone linie oddzielaj¹ce */
+}
+
+    .matrix-list-item:hover {
+        background-color: #002200; /* Zielone podœwietlenie przy najechaniu */
+    }
+
+.card-header {
+    border-bottom: 1px solid #0f0; /* Zielona linia pod nag³ówkiem */
+}
+
+/* Pe³noekranowe t³o w motywie Matrix */
+.full-screen {
+    min-height: 100vh; /* Wype³nia co najmniej ca³¹ wysokoœæ widoku */
+    display: flex; /* U¿ycie flexboxa dla ³atwego centrowania */
+    justify-content: center; /* Poziome wyœrodkowanie */
+    background-color: #000; /* Czarne t³o */
+    color: #0f0; /* Neonowy zielony */
+    padding-bottom: 40px; /* Dodaje odstêp na dole */
+    padding-left:40px;
+}
+
+/* Styl dla pe³noekranowego czarnego t³a w motywie Matrix */
+.full-screen {
+    min-height: 100vh; /* Wype³nia co najmniej ca³¹ wysokoœæ widoku */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: #000; /* Czarne t³o */
+    color: #0f0; /* Neonowy zielony */
+    padding-bottom: 40px; /* Odstêp na dole */
+}
+
+/* Styl dla formularza i jego elementów */
+.matrix-theme .container {
+    margin-bottom: 40px; /* Odstêp na dole */
+}
+
+.matrix-card {
+    background-color: #1a1a1a; /* Ciemnoszare t³o dla kart */
+    border: 1px solid #0f0; /* Zielone obramowanie */
+    box-shadow: 0 0 10px #0f0; /* Neonowa poœwiata */
+}
+
+    .matrix-card .card-header {
+        background-color: transparent;
+        color: #0f0;
+        font-weight: bold;
+    }
+
+.text-matrix {
+    color: #0f0; /* Neonowy zielony */
+    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+}
+
+.text-matrix-light {
+    color: #8f8; /* Jaœniejszy neonowy zielony */
+}
+
+.audio-element {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* Styl dla b³êdów */
+.text-danger {
+    color: red;
+}
+
+/* Styl dla pe³noekranowego czarnego t³a w motywie Matrix */
+.full-screen {
+    min-height: 100vh; /* Wype³nia co najmniej ca³¹ wysokoœæ widoku */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: #000; /* Czarne t³o */
+    color: #0f0; /* Neonowy zielony */
+    padding-bottom: 40px; /* Odstêp na dole */
+}
+
+/* Styl dla formularza i jego elementów */
+.matrix-theme .container {
+    margin-bottom: 40px; /* Odstêp na dole */
+}
+
+.matrix-card {
+    background-color: #1a1a1a; /* Ciemnoszare t³o dla kart */
+    border: 1px solid #0f0; /* Zielone obramowanie */
+    box-shadow: 0 0 10px #0f0; /* Neonowa poœwiata */
+}
+
+    .matrix-card .card-header {
+        background-color: transparent;
+        color: #0f0;
+        font-weight: bold;
+    }
+
+.text-matrix {
+    color: #0f0; /* Neonowy zielony */
+    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+}
+
+.text-matrix-light {
+    color: #8f8; /* Jaœniejszy neonowy zielony */
+}
+
+.audio-element {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* Styl dla b³êdów */
+.text-danger {
+    color: red;
+}
