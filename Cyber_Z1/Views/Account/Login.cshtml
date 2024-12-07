@@ -3,43 +3,60 @@
     ViewData["Title"] = "Logowanie";
 }
 
-<h2>Logowanie</h2>
+<div class="full-screen matrix-theme">
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1 class="display-4 text-matrix">Logowanie</h1>
+            <p class="lead text-matrix-light">
+                Wprowadź swoje dane logowania.
+            </p>
+        </div>
 
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label>Nazwa użytkownika</label>
-        <input type="text" name="username" class="form-control" required />
+        <div class="card matrix-card shadow-lg mb-4">
+            <div class="card-header">
+                <h3>Formularz logowania</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Login" method="post">
+                    <div class="form-group">
+                        <label class="text-matrix">Nazwa użytkownika</label>
+                        <input type="text" name="username" class="form-control" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-matrix">Hasło</label>
+                        <input type="password" name="password" class="form-control" required />
+                    </div>
+
+                    @if (ViewBag.AudioFilePath != null)
+                    {
+                        <audio id="audioQuestion" controls class="audio-element">
+                            <source src="@ViewBag.AudioFilePath" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    }
+                    else
+                    {
+                        <p class="text-matrix-light">Brak dostępnego pytania audio.</p>
+                    }
+
+                    <div class="form-group">
+                        <label class="text-matrix">Odpowiedz na pytanie</label>
+                        <input type="text" name="audioAnswer" class="form-control" required />
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Zaloguj</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p class="text-danger">@error.ErrorMessage</p>
+            }
+        </div>
     </div>
-    <div class="form-group">
-        <label>Hasło</label>
-        <input type="password" name="password" class="form-control" required />
-    </div>
-
-    @if (ViewBag.AudioFilePath != null)
-    {
-        <audio id="audioQuestion" controls>
-            <source src="@ViewBag.AudioFilePath" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-    }
-    else
-    {
-        <p>No audio question available.</p>
-    }
-
-    <div class="form-group">
-        <label>Answer the question</label>
-        <input type="text" name="audioAnswer" class="form-control" required />
-    </div>
-
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">Zaloguj</button>
-    </div>
-</form>
-
-<div>
-    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-    {
-        <p style="color:red">@error.ErrorMessage</p>
-    }
 </div>
